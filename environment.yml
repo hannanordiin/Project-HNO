@@ -1,0 +1,8 @@
+name: hamming-distance-checker
+channels:
+  - defaults
+dependencies:
+  - python=3.8  # You can specify the version you need
+  - pip
+  - pip:
+      - pandas  # Optional: If you want to use pandas for CSV handling in the future
