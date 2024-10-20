@@ -1,89 +1,113 @@
-Hamming Distance Index Collision Checker
+# Hamming Distance Index Collision Checker
 
-import csv
-import sys
+## Overview
+This Python script is designed to calculate the Hamming distance between pairs of combined i7 and i5 indexes from a CSV file. It identifies potential "collisions" between indexes and generates an output CSV file containing the indexes, their collision status, the minimum Hamming distances, and their closest/second-closest matches.
 
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [How to Use](#how-to-use)
+   - [Command-Line Arguments](#command-line-arguments)
+   - [Example Usage](#example-usage)
+3. [Script Breakdown](#script-breakdown)
+   - [Reading Input](#reading-input)
+   - [Calculating Hamming Distance](#calculating-hamming-distance)
+   - [Checking Collisions](#checking-collisions)
+   - [Writing Output](#writing-output)
+4. [File Formats](#file-formats)
+5. [Troubleshooting](#troubleshooting)
+
+## Prerequisites
+* Python installed
+* A CSV file containing two columns of i7 and i5 indexes.
+
+## How to Use
+
+### Command-Line Arguments
+The script expects two arguments:
+
+1. Input CSV File: The path to the CSV file containing i7 and i5 indexes.
+2. Output CSV File: The path where the output with details will be saved.
+
+### Example Usage
+To run the script from the terminal:
+
+`python script.py path/to/input.csv path/to/output.csv`
+
+Example: 
+
+`python script.py indexes.csv indexes_with_details.csv`
+
+## Script Breakdown
+
+### Reading Input
+The script reads the input CSV file provided by the user. Each row in the file should contain two values: the i7 index and the i5 index. These indexes are combined into a single sequence for comparison.
+
+Relevant code section: 
+
+`indexes = read_indexes_from_csv(input_file_path)`
+
+
+### Calculating Hamming Distance
+The Hamming distance between pairs of combined indexes is calculated. The Hamming distance is the number of positions at which the corresponding symbols differ between two sequences.
+
+Relevant code section: 
+```
 def hamming_distance(seq1, seq2):
-    """Calculate the Hamming distance between two sequences."""
-    return sum(el1 != el2 for el1, el2 in zip(seq1, seq2))
+    return sum(el1 != el2 for el1, el2 in zip(seq1, seq2))`
+```
 
-def get_min_distances(indexes):
-    """Get the minimum Hamming distances and the closest indexes for each index."""
-    n = len(indexes)
-    min_distances = [float('inf')] * n
-    closest_indexes = [("", "")] * n
-    second_closest_indexes = [("", "")] * n
-    for i in range(n):
-        for j in range(n):
-            if i != j:
-                dist = hamming_distance(indexes[i], indexes[j])
-                if dist < min_distances[i]:
-                    second_closest_indexes[i] = closest_indexes[i]
-                    closest_indexes[i] = indexes[j]
-                    min_distances[i] = dist
-                elif dist < hamming_distance(indexes[i], second_closest_indexes[i]):
-                    second_closest_indexes[i] = indexes[j]
-    return min_distances, closest_indexes, second_closest_indexes
 
-def read_indexes_from_csv(file_path):
-    """Read indexes from a CSV file. Assumes the file has two columns without headers."""
-    indexes = []
-    try:
-        with open(file_path, mode='r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                print("Row:", row)  # Debug print to see each row
-                if len(row) == 2:  # Check that each row has two columns
-                    indexes.append((row[0], row[1]))  # Store i7 and i5 as a tuple
-    except Exception as e:
-        print("Error reading file:", e)  # Print any error that occurs
-    return indexes
+### Checking Collisions
+The script checks for collisions, defined as any two indexes that have a Hamming distance less than 3. If such a collision is detected, it marks both indexes as "collided."
 
-def write_indexes_with_details_to_csv(indexes, output_file_path, collision_status, min_distances, closest_indexes, second_closest_indexes):
-    """Write indexes and their details to a new CSV file."""
-    with open(output_file_path, mode='w', newline='') as outfile:
-        writer = csv.writer(outfile)
-        # Write the header
-        writer.writerow(["i7", "i5", "Collision", "Min Distance", "Closest Index", "Second Closest Index"])
-        # Write the data with details
-        for row, collision, min_dist, closest, second_closest in zip(indexes, collision_status, min_distances, closest_indexes, second_closest_indexes):
-            writer.writerow([row[0], row[1], collision, min_dist, ''.join(closest), ''.join(second_closest)])
+Relevant code section: 
+```
+if hamming_distance(combined_indexes[i], combined_indexes[j]) < 3:
+    collision_status[i] = True
+    collision_status[j] = True
+```
 
-# Example usage with user input for file paths:
-if len(sys.argv) < 3:
-    print("Usage: python script.py <input_file_path> <output_file_path>")
-    sys.exit(1)
+### Writing Output
+The results, including collision status, minimum distances, and closest matches, are written to a new CSV file. The output file will include:
 
-input_file_path = sys.argv[1]
-output_file_path = sys.argv[2]
+* i7 and i5 indexes.
+* Whether a collision was detected.
+* The minimum Hamming distance.
+* The closest and second closest index sequences.
 
-# Read indexes from the input CSV file
-indexes = read_indexes_from_csv(input_file_path)
+Relevant code section: 
 
-if not indexes:
-    print("No indexes found in the input file.")
-    sys.exit(1)
+`write_indexes_with_details_to_csv(indexes, output_file_path, collision_status, min_distances, closest_indexes, second_closest_indexes)`
 
-# Combine i7 and i5 sequences into a single sequence for comparison
-combined_indexes = [i7 + i5 for i7, i5 in indexes]
-print("Combined Indexes:", combined_indexes)  # Debug print to check combined indexes
+## File Formats
 
-# Check for collisions
-collision_status = [False] * len(combined_indexes)
-for i in range(len(combined_indexes)):
-    for j in range(i + 1, len(combined_indexes)):
-        if hamming_distance(combined_indexes[i], combined_indexes[j]) < 3:
-            collision_status[i] = True
-            collision_status[j] = True
-print("Collision Status:", collision_status)  # Debug print to check collisions
+### Input CSV Format
+The input CSV file should have two columns:
 
-# Get minimum distances and closest indexes
-min_distances, closest_indexes, second_closest_indexes = get_min_distances(combined_indexes)
-print("Min Distances:", min_distances)  # Debug print to check distances
-print("Closest Indexes:", closest_indexes)  # Debug print to check closest indexes
-print("Second Closest Indexes:", second_closest_indexes)  # Debug print to check second closest indexes
+* i7 index (first column).
+* i5 index (second column).
 
-# Write the results to the output CSV file
-write_indexes_with_details_to_csv(indexes, output_file_path, collision_status, min_distances, closest_indexes, second_closest_indexes)
+### Output CSV Format
+The output file will contain the following columns:
 
-print(f"Results written to {output_file_path}")
+* i7 index.
+* i5 index.
+* Collision Status (True/False).
+* Minimum Hamming Distance.
+* Closest Index.
+* Second Closest Index.
+
+## Troubleshooting
+No Data in Output:
+
+* Ensure your input file contains valid i7 and i5 sequences, with exactly two columns.
+* Check the debug prints if enabled.
+
+File Path Issues:
+
+* Ensure that the file paths for input and output CSVs are correct and accessible.
+
+Incorrect Format:
+
+* Ensure your CSV file has the correct format: two columns without headers.
+
