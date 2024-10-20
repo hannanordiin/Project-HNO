@@ -1,3 +1,5 @@
+Hamming Distance Index Collision Checker
+
 import csv
 import sys
 
