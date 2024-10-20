@@ -1,7 +1,7 @@
 # Hamming Distance Index Collision Checker
 
 ## Overview
-This Python script is designed to calculate the Hamming distance between pairs of combined i7 and i5 indexes from a CSV file. It identifies potential "collisions" between indexes and generates an output CSV file containing the indexes, their collision status, the minimum Hamming distances, and their closest/second-closest matches.
+This Python script (hanna_index_script_foreveryone.py) is designed to calculate the Hamming distance between pairs of combined i7 and i5 indexes from a CSV file. It identifies potential "collisions" between indexes and generates an output CSV file containing the indexes, their collision status, the minimum Hamming distances, and their closest/second-closest matches.
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
